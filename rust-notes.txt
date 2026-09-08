@@ -246,3 +246,73 @@ Option이 "있음/없음"이면 Result는 "성공/실패":
       실행 안 해봐도 컴파일만 통과했으면 이 종류 버그 없음이 보장.
 
 ------------------------------------
+[11] enum — Rust의 슈퍼파워
+------------------------------------
+
+다른 언어 enum: 이름 붙인 숫자 (RED=0, GREEN=1...)
+Rust enum: 여러 종류 중 하나 + 각 종류가 자기 데이터를 가짐
+
+  enum Message {
+      Quit,                            // 데이터 없음
+      Move { x: i32, y: i32 },         // 이름 붙은 필드
+      Write(String),                   // 튜플식
+      Color(u8, u8, u8),
+  }
+
+한 변수가 "여러 다른 모양 중 하나"를 나타냄.
+다른 언어에서 이걸 하려면 클래스 상속 + instanceof 검사가 필요.
+
+------------------------------------
+[12] Option/Result의 정체
+------------------------------------
+
+사실 그냥 enum임. 표준 라이브러리에 이렇게 정의됨:
+
+  enum Option<T> {
+      Some(T),
+      None,
+  }
+
+  enum Result<T, E> {
+      Ok(T),
+      Err(E),
+  }
+
+<T>, <E>는 "아무 타입이나 넣을 수 있음" = 제네릭.
+C++ 템플릿, Java Generics랑 같은 개념.
+
+특별 문법이 아니라 enum이라는 도구 하나로 표현된 것뿐.
+
+------------------------------------
+[13] "불법 상태를 표현 불가능하게 만들기"
+------------------------------------
+
+배달 앱 예:
+  enum OrderStatus {
+      Pending,
+      Confirmed { order_id: u32 },
+      Delivering { driver: String },
+      Delivered { rating: u8 },
+      Cancelled { reason: String },
+  }
+
+Pending 상태엔 기사 이름이 아예 존재 불가능.
+Delivered에 취소 사유도 존재 불가능.
+잘못된 조합이 문법적으로 표현 안 됨.
+
+Java 방식이었으면:
+  class Order {
+      String status;
+      String driver;         // null일 수도 있고 아닐 수도
+      Integer rating;        // ...
+      String cancelReason;   // ...
+  }
+→ Pending인데 driver가 있는 상태가 표현 가능 → 버그 온상.
+
+이걸 "make illegal states unrepresentable"이라고 함.
+Rust 코드가 안전한 진짜 이유.
+
++ 나중에 새 variant 추가하면 match가 없는 곳 다 자동 검출.
+  리팩토링이 안 무서움.
+
+------------------------------------
