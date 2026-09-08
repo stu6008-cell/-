@@ -183,3 +183,66 @@ Rust의 기본은 immutable(못 바꿈). 바꾸려면 mut로 명시적 허락.
    if owning the value isn't necessary"
 
 ------------------------------------
+[8] Option — null을 없앤 방법
+------------------------------------
+
+다른 언어의 문제: null 검사 까먹으면 크래시 (NullPointerException 등).
+                  Tony Hoare 본인이 "10억 달러짜리 실수"라고 사과함.
+
+Rust엔 null이 없음. 대신 Option<T>:
+  Some(값) — 값이 있음
+  None    — 값이 없음
+
+  fn find_user(id: i32) -> Option<String> {
+      if id == 1 { Some(String::from("영희")) } else { None }
+  }
+
+Option<String>은 그냥 String이 아님. 껍데기 씌워진 상태.
+쓰려면 반드시 안을 꺼내야 함(컴파일 강제).
+
+------------------------------------
+[9] match — 모든 경우 강제로 다루기
+------------------------------------
+
+  match user {
+      Some(name) => println!("찾음: {}", name),
+      None       => println!("없음"),
+  }
+
+경우 하나라도 빼먹으면 컴파일 에러:
+  error[E0004]: non-exhaustive patterns: `None` not covered
+
+의미:
+  - 리팩토링해서 새 경우 추가돼도 컴파일러가 다 짚어줌
+  - "몰래 지나가는 case" 불가능 (switch의 fall-through 문제 없음)
+
+------------------------------------
+[10] Result — 예외를 없앤 방법
+------------------------------------
+
+Option이 "있음/없음"이면 Result는 "성공/실패":
+  Ok(값)   — 성공
+  Err(이유) — 실패
+
+  fn divide(a: i32, b: i32) -> Result<i32, String> {
+      if b == 0 { Err(String::from("0 나눗셈")) }
+      else      { Ok(a / b) }
+  }
+
+함수 시그니처 -> Result<i32, String> 만 봐도
+"성공하면 i32, 실패하면 String 이유가 온다"가 보임.
+숨겨진 예외 던지기 불가능.
+
+------------------------------------
+[요약2] Rust의 안전 전략
+------------------------------------
+                 다른 언어              Rust
+  없음 표현     null (숨김)             Option<T> (타입에 박음)
+  실패 표현     예외 (숨김)             Result<T,E> (타입에 박음)
+  분기 처리     switch (case 빼먹음)   match (다 안 다루면 컴파일 X)
+
+핵심: "위험한 걸 타입에 박아넣기". 그러면 컴파일러가 강제.
+결과: 런타임 크래시가 컴파일 에러로 이동.
+      실행 안 해봐도 컴파일만 통과했으면 이 종류 버그 없음이 보장.
+
+------------------------------------
