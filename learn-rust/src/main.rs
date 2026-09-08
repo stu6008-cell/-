@@ -1,7 +1,6 @@
 fn main() {
-    let x = 5;
-    let y = x;                  // 얜 왜 문제 없음?
-
-    println!("x = {}", x);      // ✅ 됨
-    println!("y = {}", y);
+    let mut s = String::from("hi");
+    let w1 = &mut s;
+    let w2 = &mut s;      // ❌ 두 번째 쓰기 빌림
+    println!("{} {}", w1, w2);
 }
